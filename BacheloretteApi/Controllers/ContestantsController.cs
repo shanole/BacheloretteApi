@@ -24,7 +24,7 @@ namespace BacheloretteApi.Controllers
     {
       return await _db.Contestants.ToListAsync();
     }
-    // POST api/bachelorette/1/contestants
+    // POST to api/bachelorette/1/contestants
     [HttpPost]
     public async Task<ActionResult<Contestant>> Post(int bacheloretteId, Contestant contestant)
     {
@@ -33,7 +33,6 @@ namespace BacheloretteApi.Controllers
       await _db.SaveChangesAsync();
       // For some reason this didn't work with nameof(GetContestant)
       return CreatedAtAction("Post", new { id = contestant.ContestantId }, contestant);
-
     }
     // Get contestant by id api/bachelorette/1/contestants/2
     [HttpGet("{id}")]
