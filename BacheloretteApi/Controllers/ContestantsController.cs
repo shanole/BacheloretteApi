@@ -20,9 +20,18 @@ namespace BacheloretteApi.Controllers
     }
     // GET api/bachelorette/1/contestants
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Contestant>>> Get()
+    public async Task<ActionResult<IEnumerable<Contestant>>> Get(int age, bool isEliminated) //example query: ?age=27 or ?isEliminated=false
     {
-      return await _db.Contestants.ToListAsync();
+      var query = _db.Contestants.AsQueryable();
+      if (age != 0) //string age = "12"  int intAge = 12
+      {
+        query = query.Where(entry => entry.Age == age);
+      }
+      if (isEliminated == true||false)
+      {
+        query = query.Where(entry => entry.IsEliminated == isEliminated);
+      }
+      return await query.ToListAsync();
     }
     // POST to api/bachelorette/1/contestants
     [HttpPost]
@@ -31,8 +40,7 @@ namespace BacheloretteApi.Controllers
       contestant.BacheloretteId = bacheloretteId;
       _db.Contestants.Add(contestant);
       await _db.SaveChangesAsync();
-      // For some reason this didn't work with nameof(GetContestant)
-      return CreatedAtAction("Post", new { id = contestant.ContestantId }, contestant);
+      return CreatedAtAction(nameof(GetContestant), new { id = contestant.ContestantId, BacheloretteId = bacheloretteId }, contestant);
     }
     // Get contestant by id api/bachelorette/1/contestants/2
     [HttpGet("{id}")]
@@ -45,5 +53,54 @@ namespace BacheloretteApi.Controllers
       }
       return contestant;
     }
+
+    //DELETE: api/bachelorette/1/contestants/1
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteContestant(int id)
+    {
+      var contestant = await _db.Contestants.FindAsync(id);
+      if (contestant == null)
+      {
+        return NotFound();
+      }
+
+      _db.Contestants.Remove(contestant);
+      await _db.SaveChangesAsync();
+      return NoContent();
+    }
+
+    //PUT: api/bachelorette/1/contestants/1
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(int id, Contestant contestant)
+    {
+      if (id != contestant.ContestantId)
+      {
+        return BadRequest();
+      }
+      _db.Entry(contestant).State = EntityState.Modified;
+      try
+      {
+        await _db.SaveChangesAsync();
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        if (!ContestantExists(id))
+        {
+          return NotFound();
+        }
+        else
+        {
+          throw;
+        }
+      }
+      return NoContent();
+    }
+
+    private bool ContestantExists(int id)
+    {
+      return _db.Contestants.Any(e => e.ContestantId == id);
+    }
+
   }
 }
+

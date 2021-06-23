@@ -44,5 +44,52 @@ namespace BacheloretteApi.Controllers
       }
       return bachelorette;
     }
+
+    //DELETE: api/bachelorette/id
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteBachelorette(int id)
+    {
+      var bachelorette = await _db.Bachelorettes.FindAsync(id);
+      if (bachelorette == null)
+      {
+        return NotFound();
+      }
+
+      _db.Bachelorettes.Remove(bachelorette);
+      await _db.SaveChangesAsync();
+      return NoContent();
+    }
+
+    //PUT: api/bachelorette/id
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(int id, Bachelorette bachelorette)
+    {
+      if (id != bachelorette.BacheloretteId)
+      {
+        return BadRequest();
+      }
+      _db.Entry(bachelorette).State = EntityState.Modified;
+      try
+      {
+        await _db.SaveChangesAsync();
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        if (!BacheloretteExists(id))
+        {
+          return NotFound();
+        }
+        else
+        {
+          throw;
+        }
+      }
+      return NoContent();
+    }
+
+    private bool BacheloretteExists(int id)
+    {
+      return _db.Bachelorettes.Any(e => e.BacheloretteId == id);
+    }
   }
 }
