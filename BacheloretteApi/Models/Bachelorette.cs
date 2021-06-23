@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace BacheloretteApi.Models
 {
   public class Bachelorette
