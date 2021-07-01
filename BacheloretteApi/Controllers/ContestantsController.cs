@@ -22,6 +22,7 @@ namespace BacheloretteApi.Controllers
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Contestant>>> Get(int age, bool isEliminated) //example query: ?age=27 or ?isEliminated=false
     {
+      // add bacheloretteId??
       var query = _db.Contestants.AsQueryable();
       if (age != 0) //string age = "12"  int intAge = 12
       {
